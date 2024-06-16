@@ -1,0 +1,164 @@
+.interface {
+    display: none;
+    position: fixed;
+    top: 10%;
+    right: 10%;
+    width: 30%;
+    height: 80%;
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
+    z-index: 1000;
+    overflow: x-hidden;
+    /* Add scroll for smaller devices */
+}
+
+.icon {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .interface {
+        width: 90%;
+        height: 90%;
+        top: 5%;
+        right: 5%;
+    }
+
+    .icon {
+        top: 10px;
+        right: 10px;
+    }
+
+    .navbar {
+        padding: 5px;
+        /* Adjust padding for smaller screens */
+    }
+
+    .bot-icon {
+        width: 40px;
+        /* Adjust size of bot icon for smaller screens */
+    }
+
+    .navbar-text h1,
+    .navbar-text p {
+        font-size: 18px;
+        /* Adjust font size for smaller screens */
+        width: auto;
+        /* Allow text to wrap */
+    }
+
+    .input-container {
+        position: static;
+        /* Ensure input container remains visible */
+        padding: 10px;
+        /* Add padding for better spacing */
+    }
+
+    .input-container input {
+        flex-grow: 1;
+        padding: 8px;
+        /* Adjust padding for smaller screens */
+        margin-right: 5px;
+        /* Adjust margin for smaller screens */
+    }
+
+    .input-container button {
+        padding: 8px 15px;
+        /* Adjust padding for smaller screens */
+    }
+}
+
+
+/* inside interface class
+/* Add these styles within the <style> tag in the head of your HTML document */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    height: calc(100% - 125px);
+    /* Adjust height to account for input container */
+    box-sizing: border-box;
+    overflow-y: auto;
+    /* Allow scrolling */
+}
+
+.message {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #e0e0e0;
+}
+
+.message.user {
+    align-self: flex-end;
+    background: #0084ff;
+    color: white;
+}
+
+.message.assistant {
+    align-self: flex-start;
+}
+
+.input-container {
+    display: flex;
+    padding: 10px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-container input {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.input-container button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #0084ff;
+    color: white;
+    cursor: pointer;
+}
+
+/* Add these styles to your existing <style> tag */
+.navbar {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to right, #11abc9 0%, #48c096 100%);
+    ;
+    /* Adjust the color to match the grey background */
+    padding: 10px;
+}
+
+.bot-icon {
+    width: 50px;
+    /* Adjust size as needed */
+    margin-right: 10px;
+}
+
+.navbar-text h1 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 24px;
+    text-align: center;
+    width: 400%;
+    /* Adjust size as needed */
+}
+
+.navbar-text p {
+    color: #ffffff;
+    margin: 0;
+    text-align: center;
+    font-size: 16px;
+    width: 400%;
+    /* Adjust size as needed */
+}
