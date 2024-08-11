@@ -150,7 +150,7 @@ def scrape_website():
             documents = SimpleDirectoryReader(DATA_DIR).load_data()
 
             # Initialize Chroma client
-            db = chromadb.PersistentClient(path="./chroma_db")
+            db = chromadb.PersistentClient(path="chatbot/chroma_db")
 
             # Create collection
             chroma_collection = db.get_or_create_collection("quickstart")
