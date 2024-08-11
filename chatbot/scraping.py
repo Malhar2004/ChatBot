@@ -3,8 +3,13 @@ import requests
 from bs4 import BeautifulSoup
 import concurrent.futures
 import re
-
-
+import hashlib
+import schedule
+import time
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.core import StorageContext
+import chromadb
 
 from django.conf import settings
 
@@ -105,20 +110,68 @@ def extract_text_and_remove_footer(url):
 
 
 
+def scrape_website():
+    # Hash for existing file (empty string initially)
 
-# Extract text from each page in parallel
-collected_text = ""
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    # Submit the tasks for each URL
-    tasks = {executor.submit(extract_text_and_remove_footer, url): url for url in urls}
-    # Retrieve the results as they become available
-    for future in concurrent.futures.as_completed(tasks):
-        url = tasks[future]
-        text = future.result()
-        if text:
-            collected_text += f"URL: {url}\n{text}\n\n"
+    existing_file_hash = ""
 
-# Writing collected text to a single file
-output_file_path = os.path.join(DATA_DIR, 'collected_text.txt')
-with open(output_file_path, "w", encoding="utf-8") as file:
-    file.write(collected_text)
+    # Check if file exists and get its hash (if it exists)
+    output_file_path = os.path.join(DATA_DIR, 'collected_text.txt')
+    if os.path.exists(output_file_path):
+        with open(output_file_path, "rb") as file:
+            existing_file_hash = hashlib.sha256(file.read()).hexdigest()
+
+    # Extract text from each page in parallel
+    collected_text = ""
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Submit the tasks for each URL
+        tasks = {executor.submit(extract_text_and_remove_footer, url): url for url in urls}
+        # Retrieve the results as they become available
+        for future in concurrent.futures.as_completed(tasks):
+            url = tasks[future]
+            text = future.result()
+            if text:
+                collected_text += f"URL: {url}\n{text}\n\n"
+
+        # Calculate new hash for the collected text
+        new_text_hash = hashlib.sha256(collected_text.encode("utf-8")).hexdigest()
+
+        # Compare hashes to determine modification
+        if existing_file_hash == new_text_hash:
+            print("No modifications found in website content.")
+
+        else:
+            print("Website content has been modified. Writing new data.")
+            # Writing collected text to a single file
+            output_file_path = os.path.join(DATA_DIR, 'collected_text.txt')
+            with open(output_file_path, "w", encoding="utf-8") as file:
+                file.write(collected_text)
+            print("Creating Index")
+            documents = SimpleDirectoryReader(DATA_DIR).load_data()
+
+            # Initialize Chroma client
+            db = chromadb.PersistentClient(path="./chroma_db")
+
+            # Create collection
+            chroma_collection = db.get_or_create_collection("quickstart")
+
+            # Assign Chroma as the vector_store to the context
+            vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+            storage_context = StorageContext.from_defaults(vector_store=vector_store)
+            # Create your index
+            index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+
+            print("index created")
+
+    print("Done!!")
+
+scrape_website()
+
+# Schedule the function to run on the 1st day of every month at midnight
+# schedule.every().month.do(1).do(scrape_website)
+# schedule.every(5).seconds.do(scrape_website)
+#
+# while True:
+#   # Check for scheduled tasks
+#   schedule.run_pending()
+#   time.sleep(1)  # Sleep for 1 second to avoid busy waiting
